@@ -1,3 +1,5 @@
+using catalog_api.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace catalog_api
 {
@@ -8,8 +10,14 @@ namespace catalog_api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
+
+            string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseMySql(mySqlConnection,
+                ServerVersion.AutoDetect(mySqlConnection)));
+
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
@@ -26,7 +34,6 @@ namespace catalog_api
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
