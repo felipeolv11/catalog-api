@@ -1,5 +1,6 @@
 using catalog_api.Context;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace catalog_api
 {
@@ -10,7 +11,10 @@ namespace catalog_api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions
+                    .ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
             string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 
