@@ -24,6 +24,7 @@ namespace catalog_api
                 ServerVersion.AutoDetect(mySqlConnection)));
 
             builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+            builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();

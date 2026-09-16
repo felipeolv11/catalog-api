@@ -1,5 +1,6 @@
 ﻿using catalog_api.Context;
 using catalog_api.Models;
+using catalog_api.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,20 +11,17 @@ namespace catalog_api.Controllers;
 [ApiController]
 public class ProdutosController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IProdutoRepository _repository;
 
-    public ProdutosController(AppDbContext context)
+    public ProdutosController(IProdutoRepository repository)
     {
-        _context = context;
+        _repository = repository;
     }
 
     [HttpGet]
     public ActionResult<IEnumerable<Produto>> Get()
     {
-        var produtos = _context.Produtos.AsNoTracking().ToList();
-
-        if (produtos is null)
-            return NotFound();
+        var produtos = _repository.GetProdutos();
 
         return Ok(produtos);
     }
@@ -31,7 +29,7 @@ public class ProdutosController : ControllerBase
     [HttpGet("{id:int}", Name = "ObterProduto")]
     public ActionResult<Produto> Get(int id)
     {
-        var produto = _context.Produtos.AsNoTracking().FirstOrDefault(p => p.ProdutoId == id);
+        var produto = _repository.GetProduto(id);
 
         if (produto is null)
             return NotFound();
@@ -45,8 +43,7 @@ public class ProdutosController : ControllerBase
         if (produto is null)
             return BadRequest();
 
-        _context.Produtos.Add(produto);
-        _context.SaveChanges();
+        var produtoCriado = _repository.Create(produto);
 
         return new CreatedAtRouteResult("ObterProduto",
             new { id = produto.ProdutoId }, produto);
@@ -58,8 +55,7 @@ public class ProdutosController : ControllerBase
         if (id != produto.ProdutoId)
             return BadRequest();
 
-        _context.Entry(produto).State = EntityState.Modified;
-        _context.SaveChanges();
+        _repository.Update(produto);
 
         return Ok(produto);
     }
@@ -67,14 +63,13 @@ public class ProdutosController : ControllerBase
     [HttpDelete("{id:int}")]
     public ActionResult Delete(int id)
     {
-        var produto = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
+        var produto = _repository.GetProduto(id);
 
         if (produto is null)
             return NotFound();
 
-        _context.Produtos.Remove(produto);
-        _context.SaveChanges();
+        var produtoExcluido = _repository.Delete(id);
 
-        return Ok(produto);
+        return Ok(produtoExcluido);
     }
 }
