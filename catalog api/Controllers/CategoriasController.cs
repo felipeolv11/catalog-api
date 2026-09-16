@@ -11,17 +11,17 @@ namespace catalog_api.Controllers;
 [ApiController]
 public class CategoriasController : ControllerBase
 {
-    private readonly IRepository<Categoria> _repository;
+    private readonly IUnitOfWork _uow;
 
-    public CategoriasController(IRepository<Categoria> repository)
+    public CategoriasController(IUnitOfWork uow)
     {
-        _repository = repository;
+        _uow = uow;
     }
 
     [HttpGet]
     public ActionResult<IEnumerable<Categoria>> Get()
     {
-        var categorias = _repository.GetAll();
+        var categorias = _uow.CategoriaRepository.GetAll();
 
         if (categorias is null)
             return NotFound();
@@ -32,7 +32,7 @@ public class CategoriasController : ControllerBase
     [HttpGet("{id:int}", Name = "ObterCategoria")]
     public ActionResult<Categoria> Get(int id)
     {
-        var categoria = _repository.Get(c => c.CategoriaId == id);
+        var categoria = _uow.CategoriaRepository.Get(c => c.CategoriaId == id);
 
         if (categoria is null)
             return NotFound();
@@ -46,7 +46,8 @@ public class CategoriasController : ControllerBase
         if (categoria is null)
             return BadRequest();
 
-        var categoriaCriada = _repository.Create(categoria);
+        var categoriaCriada = _uow.CategoriaRepository.Create(categoria);
+        _uow.Commit();
 
         return new CreatedAtRouteResult("ObterCategoria",
             new { id = categoria.CategoriaId }, categoria);
@@ -58,7 +59,8 @@ public class CategoriasController : ControllerBase
         if (id != categoria.CategoriaId)
             return BadRequest();
 
-        var categoriaAtualizada = _repository.Update(categoria);
+        var categoriaAtualizada = _uow.CategoriaRepository.Update(categoria);
+        _uow.Commit();
 
         return Ok(categoriaAtualizada);
     }
@@ -66,12 +68,13 @@ public class CategoriasController : ControllerBase
     [HttpDelete("{id:int}")]
     public ActionResult Delete(int id)
     {
-        var categoria = _repository.Get(c => c.CategoriaId == id);
+        var categoria = _uow.CategoriaRepository.Get(c => c.CategoriaId == id);
 
         if (categoria is null)
             return NotFound();
 
-        var categoriaExcluida = _repository.Delete(categoria);
+        var categoriaExcluida = _uow.CategoriaRepository.Delete(categoria);
+        _uow.Commit();
 
         return Ok(categoriaExcluida);
     }
