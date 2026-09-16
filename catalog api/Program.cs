@@ -1,4 +1,5 @@
 using catalog_api.Context;
+using catalog_api.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -21,6 +22,8 @@ namespace catalog_api
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(mySqlConnection,
                 ServerVersion.AutoDetect(mySqlConnection)));
+
+            builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
