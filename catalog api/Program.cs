@@ -1,5 +1,6 @@
 using catalog_api.Context;
 using catalog_api.Repositories;
+using catalog_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -25,6 +26,7 @@ namespace catalog_api
 
             builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
             builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
