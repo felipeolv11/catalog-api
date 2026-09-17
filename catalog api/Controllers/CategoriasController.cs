@@ -3,10 +3,12 @@ using catalog_api.Context;
 using catalog_api.DTOs;
 using catalog_api.DTOs.Mappings;
 using catalog_api.Models;
+using catalog_api.Pagination;
 using catalog_api.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace catalog_api.Controllers;
 
@@ -21,6 +23,28 @@ public class CategoriasController : ControllerBase
     {
         _uow = uow;
         _mapper = mapper;
+    }
+
+    [HttpGet("Paginação")]
+    public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriasParameters)
+    {
+        var categorias = _uow.CategoriaRepository.GetCategorias(categoriasParameters);
+
+        var metadata = new
+        {
+            categorias.TotalCount,
+            categorias.PageSize,
+            categorias.CurrentPage,
+            categorias.TotalPages,
+            categorias.HasNext,
+            categorias.HasPrevious
+        };
+
+        Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
+
+        var categoriasDto = _mapper.Map<IEnumerable<CategoriaDTO>>(categorias);
+
+        return Ok(categoriasDto);
     }
 
     [HttpGet]

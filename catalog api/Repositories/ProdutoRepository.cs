@@ -1,5 +1,6 @@
 ﻿using catalog_api.Context;
 using catalog_api.Models;
+using catalog_api.Pagination;
 using catalog_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,15 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
 {
     public ProdutoRepository(AppDbContext context) : base(context)
     {
+    }
+
+    public PagedList<Produto> GetProdutos(ProdutosParameters produtosParams)
+    {
+        var produtos = GetAll().OrderBy(p => p.ProdutoId).AsQueryable();
+
+        var produtosOrdenados = PagedList<Produto>.ToPagedList(produtos, produtosParams.pageNumber, produtosParams.PageSize);
+
+        return produtosOrdenados;
     }
 
     public IEnumerable<Produto> GetProdutosPorCategoria(int id)
