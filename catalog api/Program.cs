@@ -1,4 +1,5 @@
 using catalog_api.Context;
+using catalog_api.DTOs.Mappings;
 using catalog_api.Repositories;
 using catalog_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,8 @@ namespace catalog_api
             builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            builder.Services.AddAutoMapper(typeof(CatalogoDTOMappingProfile));
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
