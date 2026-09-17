@@ -17,7 +17,8 @@ namespace catalog_api
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
                     options.JsonSerializerOptions
-                    .ReferenceHandler = ReferenceHandler.IgnoreCycles);
+                    .ReferenceHandler = ReferenceHandler.IgnoreCycles)
+                        .AddNewtonsoftJson();
 
             string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 
