@@ -47,6 +47,28 @@ public class CategoriasController : ControllerBase
         return Ok(categoriasDto);
     }
 
+    [HttpGet("Filtro/Nome/Paginação")]
+    public ActionResult<IEnumerable<CategoriaDTO>> GetCategoriasFiltradas([FromQuery] CategoriasFiltroNome categoriasFilterParameters)
+    {
+        var categorias = _uow.CategoriaRepository.GetCategoriasFiltroNome(categoriasFilterParameters);
+
+        var metadata = new
+        {
+            categorias.TotalCount,
+            categorias.PageSize,
+            categorias.CurrentPage,
+            categorias.TotalPages,
+            categorias.HasNext,
+            categorias.HasPrevious
+        };
+
+        Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
+
+        var categoriasDto = _mapper.Map<IEnumerable<CategoriaDTO>>(categorias);
+
+        return Ok(categoriasDto);
+    }
+
     [HttpGet]
     public ActionResult<IEnumerable<CategoriaDTO>> Get()
     {
