@@ -26,18 +26,18 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet("Paginação")]
-    public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriasParameters)
+    public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get([FromQuery] CategoriasParameters categoriasParameters)
     {
-        var categorias = _uow.CategoriaRepository.GetCategorias(categoriasParameters);
+        var categorias = await _uow.CategoriaRepository.GetCategoriasAsync(categoriasParameters);
 
         var metadata = new
         {
-            categorias.TotalCount,
+            categorias.Count,
             categorias.PageSize,
-            categorias.CurrentPage,
-            categorias.TotalPages,
-            categorias.HasNext,
-            categorias.HasPrevious
+            categorias.PageCount,
+            categorias.TotalItemCount,
+            categorias.HasNextPage,
+            categorias.HasPreviousPage
         };
 
         Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
@@ -48,18 +48,18 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet("Filtro/Nome/Paginação")]
-    public ActionResult<IEnumerable<CategoriaDTO>> GetCategoriasFiltradas([FromQuery] CategoriasFiltroNome categoriasFilterParameters)
+    public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetCategoriasFiltradas([FromQuery] CategoriasFiltroNome categoriasFilterParameters)
     {
-        var categorias = _uow.CategoriaRepository.GetCategoriasFiltroNome(categoriasFilterParameters);
+        var categorias = await _uow.CategoriaRepository.GetCategoriasFiltroNomeAsync(categoriasFilterParameters);
 
         var metadata = new
         {
-            categorias.TotalCount,
+            categorias.Count,
             categorias.PageSize,
-            categorias.CurrentPage,
-            categorias.TotalPages,
-            categorias.HasNext,
-            categorias.HasPrevious
+            categorias.PageCount,
+            categorias.TotalItemCount,
+            categorias.HasNextPage,
+            categorias.HasPreviousPage
         };
 
         Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
@@ -70,9 +70,9 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<CategoriaDTO>> Get()
+    public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
     {
-        var categorias = _uow.CategoriaRepository.GetAll();
+        var categorias = await _uow.CategoriaRepository.GetAllAsync();
 
         if (categorias is null)
             return NotFound();
@@ -83,9 +83,9 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet("{id:int}", Name = "ObterCategoria")]
-    public ActionResult<CategoriaDTO> Get(int id)
+    public async Task<ActionResult<CategoriaDTO>> Get(int id)
     {
-        var categoria = _uow.CategoriaRepository.Get(c => c.CategoriaId == id);
+        var categoria = await _uow.CategoriaRepository.GetAsync(c => c.CategoriaId == id);
 
         if (categoria is null)
             return NotFound();
@@ -96,7 +96,7 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<CategoriaDTO> Post(CategoriaDTO categoriaDto)
+    public async Task<ActionResult<CategoriaDTO>> Post(CategoriaDTO categoriaDto)
     {
         if (categoriaDto is null)
             return BadRequest();
@@ -104,7 +104,7 @@ public class CategoriasController : ControllerBase
         var categoria = _mapper.Map<Categoria>(categoriaDto);
 
         var novaCategoria = _uow.CategoriaRepository.Create(categoria);
-        _uow.Commit();
+        await _uow.CommitAsync();
 
         var novaCategoriaDto = _mapper.Map<CategoriaDTO>(novaCategoria);
 
@@ -113,7 +113,7 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public ActionResult<CategoriaDTO> Put(int id, CategoriaDTO categoriaDto)
+    public async Task<ActionResult<CategoriaDTO>> Put(int id, CategoriaDTO categoriaDto)
     {
         if (id != categoriaDto.CategoriaId)
             return BadRequest();
@@ -121,7 +121,7 @@ public class CategoriasController : ControllerBase
         var categoria = _mapper.Map<Categoria>(categoriaDto);
 
         var categoriaAtualizada = _uow.CategoriaRepository.Update(categoria);
-        _uow.Commit();
+        await _uow.CommitAsync();
 
         var categoriaAtualizadaDto = _mapper.Map<CategoriaDTO>(categoriaAtualizada);
 
@@ -129,15 +129,15 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public ActionResult<CategoriaDTO> Delete(int id)
+    public async Task<ActionResult<CategoriaDTO>> Delete(int id)
     {
-        var categoria = _uow.CategoriaRepository.Get(c => c.CategoriaId == id);
+        var categoria = await _uow.CategoriaRepository.GetAsync(c => c.CategoriaId == id);
 
         if (categoria is null)
             return NotFound();
 
         var categoriaExcluida = _uow.CategoriaRepository.Delete(categoria);
-        _uow.Commit();
+        await _uow.CommitAsync();
 
         var categoriaExcluidaDto = _mapper.Map<CategoriaDTO>(categoriaExcluida);
 
